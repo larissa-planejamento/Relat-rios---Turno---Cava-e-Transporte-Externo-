@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0F1B2D" />
+<title>Relatório de Turno · Cava/Dollys</title>
+<meta name="description" content="Registro de disponibilidade de equipamentos e operadores do turno de mineração." />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="icons/icon.svg" />
+<style>
+:root{
+  --navy: #0F1B2D;
+  --navy-2: #16233A;
+  --orange: #FF7A29;
+  --orange-dark: #E36313;
+  --slate: #4A5568;
+  --green: #1E9E5A;
+  --green-bg: #E5F7ED;
+  --red: #D64545;
+  --red-bg: #FBEAEA;
+  --amber: #C98A0A;
+  --amber-bg: #FBF1DD;
+  --bg: #F3F5F8;
+  --card-bg: #FFFFFF;
+  --text: #1B2430;
+  --text-muted: #6B7686;
+  --border: #E1E5EB;
+  --whatsapp: #25D366;
+  --radius: 14px;
+  --shadow: 0 2px 10px rgba(15,27,45,0.08);
+  color-scheme: light;
+}
+
+[data-theme="dark"]{
+  --bg: #0B121F;
+  --card-bg: #131F33;
+  --text: #EAF0F7;
+  --text-muted: #93A1B5;
+  --border: #223250;
+  --green-bg: #103524;
+  --red-bg: #3A1717;
+  --amber-bg: #3A2C0C;
+  color-scheme: dark;
+}
+
+*{ box-sizing: border-box; }
+html,body{ margin:0; padding:0; }
+body{
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+  padding-bottom: 40px;
+}
+
+/* HEADER */
+.app-header{
+  position: sticky; top:0; z-index: 20;
+  background: var(--navy);
+  color: #fff;
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 14px 16px;
+  box-shadow: var(--shadow);
+}
+.brand{ display:flex; align-items:center; gap:10px; }
+.brand-mark{
+  width:38px; height:38px; border-radius:10px;
+  background: var(--orange);
+  display:flex; align-items:center; justify-content:center;
+  font-weight:800; font-size:15px; color:#161616; letter-spacing:0.5px;
+}
+.brand-text{ display:flex; flex-direction:column; line-height:1.15; }
+.brand-text strong{ font-size:15px; }
+.brand-text small{ font-size:11px; color:#B9C4D3; }
+.header-actions{ display:flex; gap:6px; }
+.icon-btn{
+  background: rgba(255,255,255,0.08);
+  border:none; color:#fff; width:38px; height:38px; border-radius:10px;
+  font-size:17px; display:flex; align-items:center; justify-content:center;
+}
+.icon-btn:active{ background: rgba(255,255,255,0.18); }
+
+main{ max-width: 720px; margin: 0 auto; padding: 14px; }
+
+/* CARDS */
+.card{
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+  margin-bottom: 14px;
+}
+.card-title{
+  font-size: 15px; text-transform: uppercase; letter-spacing: 0.6px;
+  color: var(--slate);
+  margin: 0 0 12px 0;
+  border-left: 4px solid var(--orange);
+  padding-left: 10px;
+}
+[data-theme="dark"] .card-title{ color: var(--text-muted); }
+
+/* FIELDS */
+.field{ margin-bottom: 14px; }
+.field:last-child{ margin-bottom: 0; }
+.field label{
+  display:block; font-size: 13px; font-weight:600; margin-bottom:6px; color: var(--text);
+}
+.req{ color: var(--red); }
+input[type="text"], input[type="date"], input[type="number"], textarea, select{
+  width:100%; padding: 13px 12px; border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 16px;
+  font-family: inherit;
+}
+textarea{ resize: vertical; min-height: 110px; }
+input:focus, textarea:focus{ outline: none; border-color: var(--orange); }
+input.field-error, textarea.field-error, .segmented.field-error{ border-color: var(--red) !important; }
+
+/* SEGMENTED CONTROL (Turma) */
+.segmented{ display:flex; gap:8px; flex-wrap: wrap; }
+.segmented.grid-2 .seg-btn{ flex: 1 1 calc(50% - 4px); }
+.seg-btn{
+  flex:1; min-width: 60px; padding: 12px 0; border-radius: 10px;
+  border: 1.5px solid var(--border); background: var(--bg); color: var(--text);
+  font-size:16px; font-weight:700;
+}
+.seg-btn.active{ background: var(--orange); border-color: var(--orange); color:#fff; }
+.seg-btn.seg-btn-wide{ font-size: 13.5px; padding: 12px 8px; }
+
+/* EQUIPMENT GROUPS */
+.equip-group{ margin-bottom: 18px; }
+.equip-group:last-child{ margin-bottom: 0; }
+.equip-placeholder{
+  color: var(--text-muted); font-size: 14px; text-align:center;
+  padding: 24px 12px; border: 1.5px dashed var(--border); border-radius: 10px;
+}
+.segmented-placeholder{
+  color: var(--text-muted); font-size: 13px; padding: 10px 2px;
+}
+.equip-group-title{
+  font-size: 13px; font-weight: 800; letter-spacing: 0.4px;
+  color: #fff; background: var(--slate);
+  padding: 8px 12px; border-radius: 8px; margin-bottom: 10px;
+  display:flex; align-items:center; justify-content: space-between;
+}
+.equip-group-count{ font-weight: 600; font-size:12px; opacity:0.85; }
+
+.equip-row{
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 10px;
+  background: var(--bg);
+}
+.equip-row.status-disponivel{ border-color: var(--amber); background: var(--amber-bg); }
+.equip-row.status-manutencao{ border-color: var(--red); background: var(--red-bg); }
+
+.equip-row-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.equip-code{ font-weight: 800; font-size: 16px; letter-spacing: 0.3px; }
+
+.status-toggle{ display:flex; gap:8px; flex-wrap: wrap; }
+.status-btn{
+  flex: 1 1 auto;
+  padding: 11px 12px; border-radius: 10px; font-size: 12.5px; font-weight:700;
+  border: 1.5px solid var(--border); background: var(--card-bg); color: var(--text);
+  white-space: nowrap;
+}
+.status-btn.disp.active{ background: var(--green); border-color: var(--green); color:#fff; }
+.status-btn.avail.active{ background: #FACC15; border-color: #EAB308; color: #422006; }
+.status-btn.manut.active{ background: var(--red); border-color: var(--red); color:#fff; }
+
+.operator-field{ margin-top: 4px; }
+.operator-field input{ background: var(--card-bg); }
+.operator-field textarea{ background: var(--card-bg); min-height: 60px; }
+.horimetro-row{ display:flex; gap:8px; margin-top:10px; }
+.horimetro-row > div{ flex:1; min-width:0; }
+.horimetro-row label{ font-size:12px; margin-bottom:4px; }
+.hidden{ display:none !important; }
+
+/* BUTTONS */
+.btn{
+  border:none; border-radius: 12px; font-weight: 700; font-size: 16px;
+  padding: 15px 18px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.btn-block{ width:100%; }
+.btn-lg{ padding: 17px 18px; font-size: 17px; }
+.btn-sm{ padding: 9px 12px; font-size: 13px; }
+.btn-primary{ background: var(--orange); color:#fff; }
+.btn-primary:active{ background: var(--orange-dark); }
+.btn-whatsapp{ background: var(--whatsapp); color:#fff; margin-top: 10px; }
+.btn-ghost{ background: transparent; color: var(--text); border: 1.5px solid var(--border); margin-top: 10px; }
+
+.submit-bar{ margin-top: 6px; margin-bottom: 20px; }
+
+/* RESULT */
+.result-card{ text-align:center; }
+.result-icon{ font-size: 42px; margin-bottom: 6px; }
+.result-summary{ color: var(--text-muted); font-size: 14px; margin-bottom: 16px; white-space: pre-line; }
+
+/* HISTORY */
+.history-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom: 12px; }
+.history-header .card-title{ margin:0; }
+.history-list{ display:flex; flex-direction:column; gap:10px; }
+.history-item{
+  border:1.5px solid var(--border); border-radius:10px; padding:12px;
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+}
+.history-item-info strong{ display:block; font-size:14px; }
+.history-item-info small{ color: var(--text-muted); font-size:12px; }
+.history-item-actions{ display:flex; gap:6px; }
+.history-empty{ color: var(--text-muted); font-size:14px; text-align:center; padding: 20px 0; }
+
+/* TOAST */
+.toast{
+  position: fixed; left:50%; bottom: 22px; transform: translateX(-50%);
+  background: var(--navy); color:#fff; padding: 12px 18px; border-radius: 10px;
+  font-size: 14px; box-shadow: var(--shadow); z-index: 50; max-width: 90vw; text-align:center;
+}
+
+@media (min-width: 760px){
+  .equip-groups-grid{ display:grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+}
+
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="brand">
+    <span class="brand-mark">RT</span>
+    <div class="brand-text">
+      <strong>Relatório de Turno</strong>
+      <small>Operação de Mina</small>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button id="historyBtn" class="icon-btn" title="Histórico" aria-label="Histórico">🕘</button>
+    <button id="themeBtn" class="icon-btn" title="Alternar tema" aria-label="Alternar tema">🌙</button>
+  </div>
+</header>
+
+<main id="mainView">
+
+  <form id="reportForm" novalidate>
+
+    <!-- DADOS DO TURNO -->
+    <section class="card">
+      <h2 class="card-title">Dados do Turno</h2>
+
+      <div class="field">
+        <label>Contrato <span class="req">*</span></label>
+        <div class="segmented grid-2" id="contratoGroup" role="radiogroup" aria-label="Contrato">
+          <button type="button" class="seg-btn seg-btn-wide" data-value="cava">Cava</button>
+          <button type="button" class="seg-btn seg-btn-wide" data-value="dollys">Dollys</button>
+        </div>
+        <input type="hidden" id="contratoField" name="contrato" required>
+      </div>
+
+      <div class="field">
+        <label>Turma <span class="req">*</span></label>
+        <div class="segmented" id="turmaGroup" role="radiogroup" aria-label="Turma"></div>
+        <input type="hidden" id="turmaField" name="turma" required>
+      </div>
+
+      <div class="field">
+        <label for="encarregadoField">Nome do Encarregado <span class="req">*</span></label>
+        <input type="text" id="encarregadoField" name="encarregado" placeholder="Digite o nome completo" autocomplete="name" required>
+      </div>
+    </section>
+
+    <!-- EQUIPAMENTOS -->
+    <section class="card equip-card">
+      <h2 class="card-title">Controle de Equipamentos</h2>
+      <div id="equipGroups"><!-- gerado via JS --></div>
+    </section>
+
+    <!-- OBSERVAÇÕES E INDICADORES DO TURNO -->
+    <section class="card">
+      <h2 class="card-title">Observações e Indicadores do Turno</h2>
+      <div class="field">
+        <label for="dataField">Data da operação <span class="req">*</span></label>
+        <input type="date" id="dataField" name="data" required>
+      </div>
+      <div class="field">
+        <label>Turno das observações <span class="req">*</span></label>
+        <div class="segmented" id="horarioGroup" role="radiogroup" aria-label="Turno das observações">
+          <button type="button" class="seg-btn" data-value="1º Turno">1</button>
+          <button type="button" class="seg-btn" data-value="2º Turno">2</button>
+        </div>
+        <input type="hidden" id="horarioField" name="horario" required>
+      </div>
+      <div id="dollyObservationsField" class="hidden">
+        <div class="field"><label for="dollyObservacoes">Observações do turno <span class="req">*</span></label><textarea id="dollyObservacoes" rows="8" placeholder="Registre aqui todas as observações do turno dos caminhões Dolly, em um único campo..."></textarea></div>
+      </div>
+      <div id="structuredObsFields">
+      <h3>Disponibilidade e operação dos caminhões (CB)</h3>
+      <div class="field"><label for="cbDisponiveis">Quantidade de CBs disponíveis no turno <span class="req">*</span></label><input type="number" min="0" step="1" id="cbDisponiveis" required placeholder="Ex.: 12"></div>
+      <div class="field"><label for="cbMediaOperando">Média de CBs operando na cava <span class="req">*</span></label><input type="number" min="0" step="0.1" id="cbMediaOperando" required placeholder="Ex.: 12"></div>
+      <div class="field"><label>Foram utilizados caminhões reserva da puxada? <span class="req">*</span></label><div class="segmented" id="reservaGroup" role="radiogroup" aria-label="Uso de caminhões reserva"><button type="button" class="seg-btn" data-value="Sim">Sim</button><button type="button" class="seg-btn" data-value="Não">Não</button></div><input type="hidden" id="reservaUsado" required></div>
+      <div id="reservaDetalhes" class="hidden"><div class="field"><label for="reservaQuantidade">Quantidade de caminhões reserva utilizados <span class="req">*</span></label><input type="number" min="1" step="1" id="reservaQuantidade" placeholder="Quantidade"></div><div class="field"><label>TAG e horímetros de cada caminhão reserva <span class="req">*</span></label><div id="reservaHorimetrosLista"></div><small>Para cada caminhão, informe a TAG, o horímetro inicial e o horímetro final. Todos os campos são obrigatórios.</small></div></div>
+      <h3>Efetivo operacional</h3>
+      <div class="field"><label for="motoristasTotal">Quantidade total de motoristas de CB <span class="req">*</span></label><input type="number" min="0" step="1" id="motoristasTotal" required placeholder="Quantidade"></div>
+      <div class="field"><label for="motoristasAtestado">Quantidade de motoristas de CB de atestado <span class="req">*</span></label><input type="number" min="0" step="1" id="motoristasAtestado" required placeholder="Quantidade"></div>
+      <div class="field"><label for="motoristasFerias">Quantidade de motoristas de CB em férias <span class="req">*</span></label><input type="number" min="0" step="1" id="motoristasFerias" required placeholder="Quantidade"></div>
+      <div class="field"><label for="operadoresESTotal">Quantidade total de operadores de ES <span class="req">*</span></label><input type="number" min="0" step="1" id="operadoresESTotal" required placeholder="Quantidade"></div>
+      <div class="field"><label for="operadoresESAtestado">Quantidade de operadores de ES de atestado <span class="req">*</span></label><input type="number" min="0" step="1" id="operadoresESAtestado" required placeholder="Quantidade"></div>
+      <div class="field"><label for="operadoresESFerias">Quantidade de operadores de ES em férias <span class="req">*</span></label><input type="number" min="0" step="1" id="operadoresESFerias" required placeholder="Quantidade"></div>
+      <h3>Condições operacionais</h3>
+      <div class="field"><label for="condicoesOperacionais">Condições operacionais e observações</label><textarea id="condicoesOperacionais" rows="5" placeholder="Descreva acessos, abastecimento, manutenção, DMT, restrições e outras ocorrências do turno..."></textarea></div>
+      <h3>Produção</h3>
+      <div class="field"><label for="producaoRealizada">Produção realizada (t) <span class="req">*</span></label><input type="number" min="0" step="0.01" id="producaoRealizada" required placeholder="Produção em toneladas"></div>
+      </div>
+    </section>
+
+    <div class="submit-bar">
+      <button type="submit" class="btn btn-primary btn-block btn-lg" id="finalizeBtn">
+        Finalizar Relatório
+      </button>
+    </div>
+  </form>
+
+  <!-- TELA DE RESULTADO PÓS-GERAÇÃO -->
+  <section class="card result-card hidden" id="resultCard">
+    <div class="result-icon">✅</div>
+    <h2 class="card-title">Relatório Gerado</h2>
+    <p id="resultSummary" class="result-summary"></p>
+    <div class="result-actions">
+      <button class="btn btn-primary btn-block btn-lg" id="downloadPdfBtn">⬇️ Baixar PDF</button>
+      <button class="btn btn-whatsapp btn-block btn-lg" id="shareWhatsBtn">📤 Compartilhar no WhatsApp</button>
+      <button class="btn btn-ghost btn-block" id="newReportBtn">Novo Relatório</button>
+    </div>
+  </section>
+
+  <!-- HISTÓRICO -->
+  <section class="card hidden" id="historyCard">
+    <div class="history-header">
+      <h2 class="card-title">Histórico de Turnos</h2>
+      <div style="display:flex; gap:6px;">
+        <button class="btn btn-ghost btn-sm" id="exportJsonBtn" title="Exportar dados para Power BI / análise">Exportar JSON</button>
+        <button class="btn btn-ghost btn-sm" id="closeHistoryBtn">Fechar</button>
+      </div>
+    </div>
+    <div id="historyList" class="history-list"></div>
+  </section>
+
+</main>
+
+<div id="toast" class="toast hidden"></div>
+
+<script>
+/* =========================================================
+   RELATÓRIO DE TURNO - OPERAÇÃO DE MINA
+   ========================================================= */
+
+const CONTRACTS = [
+  {
+    id: "cava",
+    label: "Cava",
+    horarios: ["1º Turno", "2º Turno"],
+    codes: [
+            "ES0145","ES0175","ES0177","ES0241","ES0249","ES0281",
+            "CB4001","CB4011","CB4051","CB4091","CB4101","CB4441","CB4501","CB4801",
+            "CB4811","CB4821","CB4831","CB4841","CB4851","CB4871","CB4881","CB4891",
+            "CB5461","CM0009","CL0002","CP0028","CP0093","MN0038","MN0044","TE0116","TE0120",
+            "TE0122","PC0205","RP175","VLL650"
+        ]
+  },
+  {
+    id: "dollys",
+    label: "Dollys",
+    horarios: ["06:00 às 14:00", "14:00 às 22:00"],
+    codes: [
+            "CB3671","CB3681","CB3691","CB3701","CB3711","CB3751","CB3761","CB3791",
+            "CB3801","CB4021","CB4451","CB4861","CB5171","CB5451","CB5471","CB5481",
+            "CB5541","CB5551","CB5561","CB5571","CB5581","CB5591","CB5601","CB5611",
+            "CB5621","CB5631","CB5641","CB5651","CB5661","VLL471"
+        ]
+  }
+];
+
+function getContract(id){
+  return CONTRACTS.find(c => c.id === id) || null;
+}
+
+const DB_NAME = "relatorio_turno_db";
+const DB_STORE = "relatorios";
+let dbInstance = null;
+let lastGeneratedPdf = null; // { blob, fileName, data }
+let currentContractId = null;
+
+/* ---------------- INDEXEDDB ---------------- */
+function openDB(){
+  return new Promise((resolve, reject) => {
+    if(dbInstance){ resolve(dbInstance); return; }
+    const req = indexedDB.open(DB_NAME, 1);
+    req.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if(!db.objectStoreNames.contains(DB_STORE)){
+        db.createObjectStore(DB_STORE, { keyPath: "id" });
+      }
+    };
+    req.onsuccess = (e) => { dbInstance = e.target.result; resolve(dbInstance); };
+    req.onerror = (e) => reject(e);
+  });
+}
+
+async function saveReport(record){
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(DB_STORE, "readwrite");
+    tx.objectStore(DB_STORE).put(record);
+    tx.oncomplete = () => resolve(record);
+    tx.onerror = (e) => reject(e);
+  });
+}
+
+async function getAllReports(){
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(DB_STORE, "readonly");
+    const req = tx.objectStore(DB_STORE).getAll();
+    req.onsuccess = () => resolve(req.result.sort((a,b) => b.id - a.id));
+    req.onerror = (e) => reject(e);
+  });
+}
+
+async function deleteReport(id){
+  const db = await openDB();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(DB_STORE, "readwrite");
+    tx.objectStore(DB_STORE).delete(id);
+    tx.oncomplete = () => resolve();
+    tx.onerror = (e) => reject(e);
+  });
+}
+
+/* ---------------- RENDER EQUIPAMENTOS ---------------- */
+function renderEquipmentGroups(contractId){
+  const container = document.getElementById("equipGroups");
+  container.innerHTML = "";
+
+  const contract = getContract(contractId);
+  if(!contract){
+    container.innerHTML = `
+      <div class="equip-placeholder">
+        Selecione o <strong>Contrato</strong> acima para carregar a lista de equipamentos.
+      </div>`;
+    return;
+  }
+
+  const groupEl = document.createElement("div");
+  groupEl.className = "equip-group";
+  groupEl.innerHTML = `
+    <div class="equip-group-title">
+      <span>${contract.label}</span>
+      <span class="equip-group-count">${contract.codes.length} equip.</span>
+    </div>
+    <div class="equip-group-rows" data-group="${contract.id}"></div>
+  `;
+  const rowsWrap = groupEl.querySelector(".equip-group-rows");
+  contract.codes.forEach(code => {
+    const rowId = `${contract.id}_${code}`;
+    const row = document.createElement("div");
+    row.className = "equip-row";
+    row.dataset.code = code;
+    row.dataset.group = contract.id;
+    row.innerHTML = `
+      <div class="equip-row-top">
+        <span class="equip-code">${code}</span>
+      </div>
+      <div class="status-toggle">
+        <button type="button" class="status-btn disp" data-row="${rowId}" data-status="Operando">Operando</button>
+        <button type="button" class="status-btn avail" data-row="${rowId}" data-status="Disponível">Disponível</button>
+        <button type="button" class="status-btn manut" data-row="${rowId}" data-status="Em Manutenção">Manutenção</button>
+      </div>
+      ${contract.id === "cava" && code === "VLL650" ? `
+      <div class="operator-field" style="margin-top:12px">
+        <label for="outraVLUsada">Utilizou outra VL durante o turno? <span class="req">*</span></label>
+        <select id="outraVLUsada">
+          <option value="">Selecione</option><option value="Não">Não</option><option value="Sim">Sim</option>
+        </select>
+        <div id="outraVLTagWrap" class="hidden" style="margin-top:10px">
+          <label for="outraVLTag">TAG da outra VL utilizada <span class="req">*</span></label>
+          <input type="text" id="outraVLTag" placeholder="Informe a TAG da VL utilizada" autocomplete="off">
+        </div>
+      </div>` : ""}
+      <div class="operator-field hidden" id="opField_${rowId}">
+        <label for="op_${rowId}">Nome do Operador <span class="req">*</span></label>
+        <input type="text" id="op_${rowId}" placeholder="Digite o nome do operador" autocomplete="off">
+        <div class="horimetro-row">
+          <div>
+            <label for="horIni_${rowId}">Horímetro Inicial</label>
+            <input type="number" step="0.1" inputmode="decimal" id="horIni_${rowId}" placeholder="Ex: 1234.5">
+          </div>
+          <div>
+            <label for="horFim_${rowId}">Horímetro Final</label>
+            <input type="number" step="0.1" inputmode="decimal" id="horFim_${rowId}" placeholder="Ex: 1240.0">
+          </div>
+        </div>
+      </div>
+      <div class="operator-field hidden" id="disponivelField_${rowId}">
+        <label for="justificativa_${rowId}">Justificativa da Disponibilidade <span class="req">*</span></label>
+        <textarea id="justificativa_${rowId}" rows="2" placeholder="Informe por que o equipamento está disponível/parado"></textarea>
+      </div>
+      <div class="operator-field hidden" id="motivoField_${rowId}">
+        <label for="motivo_${rowId}">Motivo da Manutenção <span class="req">*</span></label>
+        <textarea id="motivo_${rowId}" rows="2" placeholder="Descreva o motivo da manutenção"></textarea>
+      </div>
+    `;
+    rowsWrap.appendChild(row);
+  });
+  container.appendChild(groupEl);
+
+  container.querySelectorAll(".status-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const row = btn.closest(".equip-row");
+      const rowId = btn.dataset.row;
+      const status = btn.dataset.status;
+      row.querySelectorAll(".status-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      row.dataset.status = status;
+      row.classList.remove("status-disponivel","status-operando","status-manutencao","status-sem-operador");
+      const opField = document.getElementById(`opField_${rowId}`);
+      const motivoField = document.getElementById(`motivoField_${rowId}`);
+      const disponivelField = document.getElementById(`disponivelField_${rowId}`);
+      opField.classList.add("hidden");
+      motivoField.classList.add("hidden");
+      disponivelField.classList.add("hidden");
+      if(status === "Operando"){
+        row.classList.add("status-operando");
+        opField.classList.remove("hidden");
+        document.getElementById(`motivo_${rowId}`).value = "";
+        document.getElementById(`justificativa_${rowId}`).value = "";
+      } else if(status === "Disponível"){
+        row.classList.add("status-disponivel");
+        disponivelField.classList.remove("hidden");
+        document.getElementById(`op_${rowId}`).value = "";
+        document.getElementById(`horIni_${rowId}`).value = "";
+        document.getElementById(`horFim_${rowId}`).value = "";
+        document.getElementById(`motivo_${rowId}`).value = "";
+      } else if(status === "Em Manutenção"){
+        row.classList.add("status-manutencao");
+        motivoField.classList.remove("hidden");
+        document.getElementById(`op_${rowId}`).value = "";
+        document.getElementById(`horIni_${rowId}`).value = "";
+        document.getElementById(`horFim_${rowId}`).value = "";
+        document.getElementById(`justificativa_${rowId}`).value = "";
+      }
+    });
+  });
+  const outraVLSelect = document.getElementById("outraVLUsada");
+  if(outraVLSelect){
+    outraVLSelect.addEventListener("change", () => {
+      const tagWrap = document.getElementById("outraVLTagWrap");
+      const tagInput = document.getElementById("outraVLTag");
+      const mostrar = outraVLSelect.value === "Sim";
+      tagWrap.classList.toggle("hidden", !mostrar);
+      tagInput.required = mostrar;
+      if(!mostrar){ tagInput.value = ""; tagInput.classList.remove("field-error"); }
+    });
+  }
+}
+
+/* ---------------- SEGMENTADOS (Turma / Horário do Turno) ---------------- */
+function setupSegmented(groupId, fieldId){
+  const group = document.getElementById(groupId);
+  const hidden = document.getElementById(fieldId);
+  group.querySelectorAll(".seg-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      group.querySelectorAll(".seg-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      hidden.value = btn.dataset.value;
+      group.classList.remove("field-error");
+    });
+  });
+}
+
+/* ---------------- CONTRATO (troca a lista de equipamentos e os horários) ---------------- */
+function renderHorarioOptions(contractId){
+  const group = document.getElementById("horarioGroup");
+  const hidden = document.getElementById("horarioField");
+  const contract = getContract(contractId);
+  hidden.value = "";
+  if(!contract){
+    group.innerHTML = `<div class="segmented-placeholder">Selecione o Contrato para ver os horários disponíveis.</div>`;
+    return;
+  }
+  group.innerHTML = contract.horarios
+    .map(h => `<button type="button" class="seg-btn seg-btn-wide" data-value="${h}">${h}</button>`)
+    .join("");
+  group.classList.remove("field-error");
+  setupSegmented("horarioGroup", "horarioField");
+}
+
+function renderTurmaOptions(contractId){
+  const group = document.getElementById("turmaGroup");
+  const hidden = document.getElementById("turmaField");
+  const turmas = contractId === "dollys" ? ["A", "B"] : ["A", "B", "C", "D"];
+  const current = hidden.value;
+  group.innerHTML = turmas.map(t => `<button type="button" class="seg-btn${current === t ? " active" : ""}" data-value="${t}">${t}</button>`).join("");
+  if(!turmas.includes(current)) hidden.value = "";
+  group.classList.remove("field-error");
+  setupSegmented("turmaGroup", "turmaField");
+}
+
+function updateObservationsLayout(contractId){
+  const isDollys = contractId === "dollys";
+  document.getElementById("dollyObservationsField").classList.toggle("hidden", !isDollys);
+  document.getElementById("structuredObsFields").classList.toggle("hidden", isDollys);
+  document.getElementById("dollyObservacoes").required = isDollys;
+  ["cbDisponiveis","cbMediaOperando","reservaUsado","motoristasTotal","motoristasAtestado","motoristasFerias","operadoresESTotal","operadoresESAtestado","operadoresESFerias","producaoRealizada"].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.required = !isDollys;
+  });
+  document.getElementById("reservaQuantidade").required = !isDollys && document.getElementById("reservaUsado").value === "Sim";
+}
+
+function setupContratoSelector(){
+  const group = document.getElementById("contratoGroup");
+  const hidden = document.getElementById("contratoField");
+  group.querySelectorAll(".seg-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const novoContrato = btn.dataset.value;
+      if(novoContrato === currentContractId) return;
+
+      const trocar = () => {
+        group.querySelectorAll(".seg-btn").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+        hidden.value = novoContrato;
+        group.classList.remove("field-error");
+        currentContractId = novoContrato;
+        renderEquipmentGroups(novoContrato);
+        renderHorarioOptions(novoContrato);
+        renderTurmaOptions(novoContrato);
+        updateObservationsLayout(novoContrato);
+      };
+
+      if(currentContractId){
+        if(confirm("Trocar o contrato vai limpar o status já preenchido dos equipamentos e o horário selecionado. Continuar?")){
+          trocar();
+        }
+      } else {
+        trocar();
+      }
+    });
+  });
+}
+
+/* ---------------- TEMA ---------------- */
+function setupTheme(){
+  const btn = document.getElementById("themeBtn");
+  const saved = localStorage.getItem("rt_theme") || "light";
+  applyTheme(saved);
+  btn.addEventListener("click", () => {
+    const current = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+    const next = current === "dark" ? "light" : "dark";
+    applyTheme(next);
+    localStorage.setItem("rt_theme", next);
+  });
+}
+function applyTheme(theme){
+  if(theme === "dark"){
+    document.documentElement.setAttribute("data-theme","dark");
+    document.getElementById("themeBtn").textContent = "☀️";
+  } else {
+    document.documentElement.removeAttribute("data-theme");
+    document.getElementById("themeBtn").textContent = "🌙";
+  }
+}
+
+/* ---------------- TOAST ---------------- */
+let toastTimer = null;
+function showToast(msg){
+  const toast = document.getElementById("toast");
+  toast.textContent = msg;
+  toast.classList.remove("hidden");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.add("hidden"), 3200);
+}
+
+/* ---------------- COLETA E VALIDAÇÃO ---------------- */
+function collectFormData(){
+  const contrato = document.getElementById("contratoField").value;
+  const data = document.getElementById("dataField").value;
+  const horario = document.getElementById("horarioField").value;
+  const turma = document.getElementById("turmaField").value;
+  const encarregado = document.getElementById("encarregadoField").value.trim();
+  const cbDisponiveis = document.getElementById("cbDisponiveis").value;
+  const cbMediaOperando = document.getElementById("cbMediaOperando").value;
+  const reservaUsado = document.getElementById("reservaUsado").value;
+  const reservaQuantidade = document.getElementById("reservaQuantidade").value;
+  const reservaHorimetros = Array.from(document.querySelectorAll(".reserva-horimetro-row")).map((row, i) => ({
+    tag: row.querySelector("[data-reserva-field='tag']").value.trim(),
+    inicial: row.querySelector("[data-reserva-field='inicial']").value.trim(),
+    final: row.querySelector("[data-reserva-field='final']").value.trim()
+  }));
+  const reservaHorimetrosTexto = reservaHorimetros.map((r, i) => `Caminhão reserva ${i + 1}: ${r.tag} — horímetro inicial: ${r.inicial} — horímetro final: ${r.final}`).join("\n");
+  const motoristasTotal = document.getElementById("motoristasTotal").value;
+  const motoristasAtestado = document.getElementById("motoristasAtestado").value;
+  const motoristasFerias = document.getElementById("motoristasFerias").value;
+  const operadoresESTotal = document.getElementById("operadoresESTotal").value;
+  const operadoresESAtestado = document.getElementById("operadoresESAtestado").value;
+  const operadoresESFerias = document.getElementById("operadoresESFerias").value;
+  const condicoesOperacionais = document.getElementById("condicoesOperacionais").value.trim();
+  const producaoRealizada = document.getElementById("producaoRealizada").value;
+  const outraVLUsada = contrato === "cava" ? (document.getElementById("outraVLUsada")?.value || "") : "";
+  const outraVLTag = contrato === "cava" ? (document.getElementById("outraVLTag")?.value.trim() || "") : "";
+  const observacoes = contrato === "dollys" ? document.getElementById("dollyObservacoes").value.trim() : [
+    `CBs disponíveis no turno: ${cbDisponiveis}`,
+    `Média de CBs operando na cava: ${cbMediaOperando}`,
+    `Caminhões reserva da puxada utilizados: ${reservaUsado}${reservaUsado === "Sim" ? ` (quantidade: ${reservaQuantidade})` : ""}`,
+    reservaUsado === "Sim" ? `TAG e horímetros dos caminhões reserva:\n${reservaHorimetrosTexto}` : "",
+    `Motoristas de CB: ${motoristasTotal}; de atestado: ${motoristasAtestado}; em férias: ${motoristasFerias}`,
+    `Operadores de ES: ${operadoresESTotal}; de atestado: ${operadoresESAtestado}; em férias: ${operadoresESFerias}`,
+    condicoesOperacionais ? `Condições operacionais: ${condicoesOperacionais}` : "",
+    `Produção realizada: ${producaoRealizada} t`,
+    `Outra VL utilizada durante o turno: ${outraVLUsada || "Não informado"}${outraVLUsada === "Sim" ? ` — TAG: ${outraVLTag}` : ""}`
+  ].filter(Boolean).join("\n\n");
+
+  const equipamentos = [];
+  document.querySelectorAll(".equip-row").forEach(row => {
+    const code = row.dataset.code;
+    const group = row.dataset.group;
+    const status = row.dataset.status || null;
+    let operador = "";
+    let motivoManutencao = "";
+    let justificativaDisponivel = "";
+    let horimetroInicial = "";
+    let horimetroFinal = "";
+    if(status === "Operando"){
+      const input = document.getElementById(`op_${group}_${code}`);
+      operador = input ? input.value.trim() : "";
+      const horIni = document.getElementById(`horIni_${group}_${code}`);
+      const horFim = document.getElementById(`horFim_${group}_${code}`);
+      horimetroInicial = horIni ? horIni.value.trim() : "";
+      horimetroFinal = horFim ? horFim.value.trim() : "";
+    } else if(status === "Disponível"){
+      const input = document.getElementById(`justificativa_${group}_${code}`);
+      justificativaDisponivel = input ? input.value.trim() : "";
+    } else if(status === "Em Manutenção"){
+      const input = document.getElementById(`motivo_${group}_${code}`);
+      motivoManutencao = input ? input.value.trim() : "";
+    }
+    equipamentos.push({ code, group, status, operador, justificativaDisponivel, motivoManutencao, horimetroInicial, horimetroFinal });
+  });
+
+  return { contrato, data, horario, turma, encarregado, observacoes, equipamentos, cbDisponiveis, cbMediaOperando, reservaUsado, reservaQuantidade, reservaHorimetros, motoristasTotal, motoristasAtestado, motoristasFerias, operadoresESTotal, operadoresESAtestado, operadoresESFerias, condicoesOperacionais, producaoRealizada, outraVLUsada, outraVLTag };
+}
+
+function validateFormData(form){
+  let valid = true;
+  const errors = [];
+
+  const contratoGroup = document.getElementById("contratoGroup");
+  if(!form.contrato){
+    contratoGroup.classList.add("field-error"); valid = false;
+    errors.push("Selecione o Contrato.");
+  } else contratoGroup.classList.remove("field-error");
+
+  const dataInput = document.getElementById("dataField");
+  if(!form.data){
+    dataInput.classList.add("field-error"); valid = false;
+    errors.push("Informe a Data do turno.");
+  } else dataInput.classList.remove("field-error");
+
+  const horarioGroup = document.getElementById("horarioGroup");
+  if(!form.horario){
+    horarioGroup.classList.add("field-error"); valid = false;
+    errors.push("Selecione o Horário do Turno.");
+  } else horarioGroup.classList.remove("field-error");
+
+  const turmaGroup = document.getElementById("turmaGroup");
+  if(!form.turma){
+    turmaGroup.classList.add("field-error"); valid = false;
+    errors.push("Selecione a Turma.");
+  } else turmaGroup.classList.remove("field-error");
+
+  const encInput = document.getElementById("encarregadoField");
+  if(!form.encarregado){
+    encInput.classList.add("field-error"); valid = false;
+    errors.push("Informe o Nome do Encarregado.");
+  } else encInput.classList.remove("field-error");
+
+  let equipStatusMissing = false;
+  let operatorMissing = false;
+  let motivoMissing = false;
+  let justificativaMissing = false;
+  form.equipamentos.forEach(eq => {
+    const row = document.querySelector(`.equip-row[data-group="${eq.group}"][data-code="${eq.code}"]`);
+    if(!eq.status){
+      equipStatusMissing = true;
+      row.classList.add("field-error");
+      valid = false;
+    } else {
+      row.classList.remove("field-error");
+    }
+    if(eq.status === "Operando" && !eq.operador){
+      operatorMissing = true;
+      valid = false;
+      const input = document.getElementById(`op_${eq.group}_${eq.code}`);
+      if(input) input.classList.add("field-error");
+    } else {
+      const input = document.getElementById(`op_${eq.group}_${eq.code}`);
+      if(input) input.classList.remove("field-error");
+    }
+    if(eq.status === "Disponível" && !eq.justificativaDisponivel){
+      justificativaMissing = true;
+      valid = false;
+      const input = document.getElementById(`justificativa_${eq.group}_${eq.code}`);
+      if(input) input.classList.add("field-error");
+    } else {
+      const input = document.getElementById(`justificativa_${eq.group}_${eq.code}`);
+      if(input) input.classList.remove("field-error");
+    }
+    if(eq.status === "Em Manutenção" && !eq.motivoManutencao){
+      motivoMissing = true;
+      valid = false;
+      const input = document.getElementById(`motivo_${eq.group}_${eq.code}`);
+      if(input) input.classList.add("field-error");
+    } else {
+      const input = document.getElementById(`motivo_${eq.group}_${eq.code}`);
+      if(input) input.classList.remove("field-error");
+    }
+  });
+  if(equipStatusMissing) errors.push("Selecione o status de todos os equipamentos.");
+  if(operatorMissing) errors.push("Informe o nome do operador para equipamentos em operação.");
+  if(motivoMissing) errors.push("Informe o motivo da manutenção para os equipamentos em manutenção.");
+  if(justificativaMissing) errors.push("Justifique por que os equipamentos disponíveis estão parados.");
+  if(form.contrato === "dollys") {
+    const obs = document.getElementById("dollyObservacoes");
+    if(!obs.value.trim()){obs.classList.add("field-error");valid=false;errors.push("Preencha as observações do turno dos Dolly.");} else obs.classList.remove("field-error");
+  } else {
+    ["cbDisponiveis","cbMediaOperando","reservaUsado","motoristasTotal","motoristasAtestado","motoristasFerias","operadoresESTotal","operadoresESAtestado","operadoresESFerias","producaoRealizada"].forEach(id=>{
+      const el=document.getElementById(id); if(el.value===""){el.classList.add("field-error");valid=false;errors.push("Preencha todos os campos obrigatórios de observações e produção.");} else el.classList.remove("field-error");
+    });
+    const outraVLSelect = document.getElementById("outraVLUsada");
+    if(outraVLSelect){
+      if(!form.outraVLUsada){ outraVLSelect.classList.add("field-error"); valid=false; errors.push("Informe se utilizou outra VL durante o turno."); }
+      else { outraVLSelect.classList.remove("field-error"); }
+      if(form.outraVLUsada === "Sim"){
+        const tagInput = document.getElementById("outraVLTag");
+        if(!form.outraVLTag){ tagInput.classList.add("field-error"); valid=false; errors.push("Informe a TAG da outra VL utilizada."); }
+        else tagInput.classList.remove("field-error");
+      }
+    }
+  }
+  if(form.contrato !== "dollys" && form.reservaUsado==="Sim") {
+    const quantidadeEl = document.getElementById("reservaQuantidade");
+    if(!quantidadeEl.value || Number(quantidadeEl.value) < 1){quantidadeEl.classList.add("field-error");valid=false;errors.push("Informe a quantidade de caminhões reserva utilizados.");} else quantidadeEl.classList.remove("field-error");
+    document.querySelectorAll(".reserva-horimetro-row").forEach(row=>{
+      row.querySelectorAll("input").forEach(el=>{if(!el.value.trim()){el.classList.add("field-error");valid=false;}else el.classList.remove("field-error");});
+    });
+    if(form.reservaHorimetros.length !== Number(form.reservaQuantidade) || form.reservaHorimetros.some(r=>!r.tag || !r.inicial || !r.final)) {valid=false;errors.push("Preencha a TAG, o horímetro inicial e o horímetro final de cada caminhão reserva.");}
+  }
+
+  return { valid, errors };
+}
+
+/* ---------------- GERAÇÃO DE PDF ---------------- */
+function formatDateBR(isoDate){
+  if(!isoDate) return "";
+  const [y,m,d] = isoDate.split("-");
+  return `${d}/${m}/${y}`;
+}
+
+function buildPdf(form){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ unit: "pt", format: "a4" });
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const marginX = 40;
+  let cursorY = 0;
+
+  // Cabeçalho corporativo
+  doc.setFillColor(15, 27, 45); // navy
+  doc.rect(0, 0, pageWidth, 70, "F");
+  doc.setTextColor(255,255,255);
+  doc.setFont("helvetica","bold");
+  doc.setFontSize(16);
+  doc.text("RELATÓRIO DE TURNO — OPERAÇÃO DE MINA", marginX, 30);
+  doc.setFont("helvetica","normal");
+  doc.setFontSize(10);
+  doc.text("Controle de Disponibilidade de Equipamentos e Operadores", marginX, 47);
+
+  const emissao = new Date();
+  const emissaoStr = `${emissao.toLocaleDateString("pt-BR")} ${emissao.toLocaleTimeString("pt-BR")}`;
+  doc.setFontSize(9);
+  doc.text(`Emitido em: ${emissaoStr}`, marginX, 62);
+
+  cursorY = 95;
+
+  // Dados do turno
+  doc.setTextColor(20,20,20);
+  doc.setFont("helvetica","bold");
+  doc.setFontSize(12);
+  doc.text("Dados do Turno", marginX, cursorY);
+  cursorY += 8;
+
+  doc.autoTable({
+    startY: cursorY,
+    margin: { left: marginX, right: marginX },
+    theme: "grid",
+    styles: { fontSize: 10, cellPadding: 6 },
+    headStyles: { fillColor: [74, 85, 104], textColor: 255 },
+    head: [["Contrato","Data","Horário do Turno","Turma","Encarregado"]],
+    body: [[getContract(form.contrato)?.label || form.contrato, formatDateBR(form.data), form.horario, form.turma, form.encarregado]]
+  });
+
+  cursorY = doc.lastAutoTable.finalY + 20;
+
+  // Tabela de equipamentos do contrato selecionado
+  const contract = getContract(form.contrato);
+  if(contract){
+    const rows = form.equipamentos
+      .filter(eq => eq.group === contract.id)
+      .map(eq => {
+        let detalhe = "—";
+        let horimetro = "—";
+        if(eq.status === "Operando"){
+          detalhe = eq.operador || "-";
+          if(eq.horimetroInicial || eq.horimetroFinal){
+            horimetro = `${eq.horimetroInicial || "-"} → ${eq.horimetroFinal || "-"}`;
+          } else {
+            horimetro = "-";
+          }
+        } else if(eq.status === "Disponível"){
+          detalhe = eq.justificativaDisponivel || "-";
+        } else if(eq.status === "Em Manutenção"){
+          detalhe = eq.motivoManutencao || "-";
+        }
+        return [eq.code, eq.status || "-", detalhe, horimetro];
+      });
+
+    if(cursorY > doc.internal.pageSize.getHeight() - 120){
+      doc.addPage();
+      cursorY = 40;
+    }
+
+    doc.setFont("helvetica","bold");
+    doc.setFontSize(11);
+    doc.setTextColor(20,20,20);
+    doc.text(`Equipamentos · Contrato ${contract.label}`, marginX, cursorY);
+    cursorY += 8;
+
+    doc.autoTable({
+      startY: cursorY,
+      margin: { left: marginX, right: marginX },
+      theme: "striped",
+      styles: { fontSize: 9.5, cellPadding: 5 },
+      headStyles: { fillColor: [255, 122, 41], textColor: 255 },
+      head: [["Código do Equipamento","Status","Operador / Justificativa / Motivo","Horímetro (Inicial → Final)"]],
+      body: rows,
+      didParseCell: (data) => {
+        if(data.section === "body" && data.column.index === 1){
+          if(data.cell.raw === "Operando"){
+            data.cell.styles.textColor = [30, 158, 90];
+            data.cell.styles.fontStyle = "bold";
+          } else if(data.cell.raw === "Disponível"){
+            data.cell.styles.textColor = [74, 85, 104];
+            data.cell.styles.fontStyle = "bold";
+          } else if(data.cell.raw === "Em Manutenção"){
+            data.cell.styles.textColor = [214, 69, 69];
+            data.cell.styles.fontStyle = "bold";
+          }
+        }
+      }
+    });
+    cursorY = doc.lastAutoTable.finalY + 18;
+  }
+
+  // Observações
+  if(cursorY > doc.internal.pageSize.getHeight() - 140){
+    doc.addPage();
+    cursorY = 40;
+  }
+  doc.setFont("helvetica","bold");
+  doc.setFontSize(12);
+  doc.setTextColor(20,20,20);
+  doc.text("Principais Observações do Turno", marginX, cursorY);
+  cursorY += 18;
+  doc.setFont("helvetica","normal");
+  doc.setFontSize(12);
+  const dataObs = form.data ? new Date(form.data + "T12:00:00").toLocaleDateString("pt-BR") : "Data não informada";
+  const turnoObs = form.horario || "Turno não informado";
+  doc.text(`Informações do ${turnoObs} – ${dataObs}`, marginX + 8, cursorY);
+  cursorY += 18;
+  doc.setFontSize(10);
+  const obsText = form.observacoes || "Sem observações registradas.";
+  const wrapped = doc.splitTextToSize(obsText, pageWidth - marginX*2);
+  const neededHeight = wrapped.length * 13 + 20;
+  if(cursorY + neededHeight > doc.internal.pageSize.getHeight() - 40){
+    doc.addPage();
+    cursorY = 40;
+  }
+  doc.setDrawColor(225,229,235);
+  doc.rect(marginX, cursorY - 10, pageWidth - marginX*2, neededHeight, "S");
+  doc.text(wrapped, marginX + 8, cursorY + 4);
+
+  // Rodapé em todas as páginas
+  const pageCount = doc.internal.getNumberOfPages();
+  for(let i=1;i<=pageCount;i++){
+    doc.setPage(i);
+    doc.setFontSize(8);
+    doc.setTextColor(140,140,140);
+    doc.text(
+      `Relatório de Turno · Operação de Mina — Página ${i} de ${pageCount}`,
+      marginX, doc.internal.pageSize.getHeight() - 20
+    );
+  }
+
+  return doc;
+}
+
+function pdfFileName(form){
+  const safeName = (form.encarregado || "turno").replace(/\s+/g,"_").toLowerCase();
+  const turnoSufixo = form.horario === "2º Turno" ? "noite" : (form.horario === "1º Turno" ? "dia" : "x");
+  const contratoSufixo = (getContract(form.contrato)?.label || "contrato").replace(/\s+/g,"_").toLowerCase();
+  return `relatorio_turno_${contratoSufixo}_${form.data || "sem_data"}_${turnoSufixo}_turma${form.turma || "x"}_${safeName}.pdf`;
+}
+
+/* ---------------- HORÍMETROS DOS CAMINHÕES RESERVA ---------------- */
+function escapeHtml(value){
+  return String(value).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;").replace(/'/g,"&#39;");
+}
+function renderReservaHorimetros(){
+  const yes = document.getElementById("reservaUsado").value === "Sim";
+  const quantidadeEl = document.getElementById("reservaQuantidade");
+  const container = document.getElementById("reservaHorimetrosLista");
+  if(!yes){container.innerHTML="";return;}
+  const quantidade = Math.max(0, Math.min(100, parseInt(quantidadeEl.value, 10) || 0));
+  const anteriores = Array.from(container.querySelectorAll(".reserva-horimetro-row")).map(row=>({
+    tag: row.querySelector("[data-reserva-field='tag']")?.value || "",
+    inicial: row.querySelector("[data-reserva-field='inicial']")?.value || "",
+    final: row.querySelector("[data-reserva-field='final']")?.value || ""
+  }));
+  container.innerHTML = "";
+  for(let i=0;i<quantidade;i++){
+    const valores = anteriores[i] || {};
+    const row = document.createElement("div");
+    row.className = "reserva-horimetro-row";
+    row.style.cssText = "border:1px solid var(--border,#ddd);border-radius:10px;padding:12px;margin:10px 0;";
+    row.innerHTML = `<strong>Caminhão reserva ${i+1}</strong><div class="field"><label>TAG <span class="req">*</span></label><input type="text" data-reserva-field="tag" required placeholder="Ex.: CB5611" value="${escapeHtml(valores.tag || "")}"></div><div class="horimetro-row"><div><label>Horímetro inicial <span class="req">*</span></label><input type="number" min="0" step="0.01" data-reserva-field="inicial" required placeholder="Inicial" value="${escapeHtml(valores.inicial || "")}"></div><div><label>Horímetro final <span class="req">*</span></label><input type="number" min="0" step="0.01" data-reserva-field="final" required placeholder="Final" value="${escapeHtml(valores.final || "")}"></div></div>`;
+    container.appendChild(row);
+  }
+}
+
+/* ---------------- FLUXO PRINCIPAL ---------------- */
+function setupForm(){
+  setupSegmented("reservaGroup", "reservaUsado");
+  document.getElementById("reservaGroup").addEventListener("click", () => {
+    const yes = document.getElementById("reservaUsado").value === "Sim";
+    document.getElementById("reservaDetalhes").classList.toggle("hidden", !yes);
+    document.getElementById("reservaQuantidade").required = yes;
+    if(!yes){document.getElementById("reservaQuantidade").value="";document.getElementById("reservaHorimetrosLista").innerHTML="";}
+    renderReservaHorimetros();
+  });
+  document.getElementById("reservaQuantidade").addEventListener("input", renderReservaHorimetros);
+  document.getElementById("reportForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const form = collectFormData();
+    const { valid, errors } = validateFormData(form);
+    if(!valid){
+      showToast(errors[0] || "Preencha todos os campos obrigatórios.");
+      const firstError = document.querySelector(".field-error");
+      if(firstError) firstError.scrollIntoView({ behavior:"smooth", block:"center" });
+      return;
+    }
+
+    const finalizeBtn = document.getElementById("finalizeBtn");
+    finalizeBtn.disabled = true;
+    finalizeBtn.textContent = "Gerando PDF...";
+
+    try {
+      const doc = buildPdf(form);
+      const fileName = pdfFileName(form);
+      const blob = doc.output("blob");
+
+      lastGeneratedPdf = { blob, fileName, data: form };
+
+      const record = {
+        id: Date.now(),
+        contrato: form.contrato,
+        data: form.data,
+        horario: form.horario,
+        turma: form.turma,
+        encarregado: form.encarregado,
+        observacoes: form.observacoes,
+        equipamentos: form.equipamentos,
+        fileName,
+        createdAt: new Date().toISOString()
+      };
+      await saveReport(record);
+
+      const operando = form.equipamentos.filter(e => e.status === "Operando").length;
+      const disponiveis = form.equipamentos.filter(e => e.status === "Disponível").length;
+      const manutencao = form.equipamentos.filter(e => e.status === "Em Manutenção").length;
+      const contratoLabel = getContract(form.contrato)?.label || form.contrato;
+
+      document.getElementById("resultSummary").textContent =
+        `Contrato ${contratoLabel} · Turma ${form.turma} · ${formatDateBR(form.data)} · ${form.horario}\n` +
+        `${operando} operando · ${disponiveis} disponível(is) · ${manutencao} em manutenção`;
+
+      document.getElementById("reportForm").classList.add("hidden");
+      document.getElementById("historyCard").classList.add("hidden");
+      document.getElementById("resultCard").classList.remove("hidden");
+      document.getElementById("resultCard").scrollIntoView({ behavior:"smooth" });
+
+    } catch(err){
+      console.error(err);
+      showToast("Erro ao gerar o PDF. Tente novamente.");
+    } finally {
+      finalizeBtn.disabled = false;
+      finalizeBtn.textContent = "Finalizar Relatório";
+    }
+  });
+
+  document.getElementById("downloadPdfBtn").addEventListener("click", () => {
+    if(!lastGeneratedPdf) return;
+    downloadBlob(lastGeneratedPdf.blob, lastGeneratedPdf.fileName);
+  });
+
+  document.getElementById("shareWhatsBtn").addEventListener("click", async () => {
+    if(!lastGeneratedPdf) return;
+    await sharePdf(lastGeneratedPdf.blob, lastGeneratedPdf.fileName, lastGeneratedPdf.data);
+  });
+
+  document.getElementById("newReportBtn").addEventListener("click", () => {
+    resetForm();
+  });
+}
+
+function downloadBlob(blob, fileName){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = fileName;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
+
+async function sharePdf(blob, fileName, form){
+  const file = new File([blob], fileName, { type: "application/pdf" });
+  const shareText = `Relatório de Turno - Contrato ${getContract(form.contrato)?.label || form.contrato} - Turma ${form.turma} - ${formatDateBR(form.data)} (${form.horario})`;
+
+  if(navigator.canShare && navigator.canShare({ files: [file] })){
+    try {
+      await navigator.share({ files: [file], title: "Relatório de Turno", text: shareText });
+      return;
+    } catch(err){
+      if(err && err.name === "AbortError") return; // usuário cancelou
+      console.warn("Falha no compartilhamento nativo, usando alternativa.", err);
+    }
+  }
+  // Fallback: baixa o PDF e abre o WhatsApp com o texto (anexo manual)
+  downloadBlob(blob, fileName);
+  const waUrl = `https://wa.me/?text=${encodeURIComponent(shareText + " - Anexe o PDF baixado.")}`;
+  window.open(waUrl, "_blank");
+  showToast("PDF baixado. Anexe o arquivo na conversa do WhatsApp.");
+}
+
+function resetForm(){
+  document.getElementById("reportForm").reset();
+  document.querySelectorAll(".seg-btn").forEach(b => b.classList.remove("active"));
+  document.getElementById("turmaField").value = "";
+  document.getElementById("contratoField").value = "";
+  document.getElementById("dollyObservacoes").value = "";
+  updateObservationsLayout(null);
+  currentContractId = null;
+  renderEquipmentGroups(null);
+  renderHorarioOptions(null);
+  lastGeneratedPdf = null;
+  document.getElementById("resultCard").classList.add("hidden");
+  document.getElementById("reportForm").classList.remove("hidden");
+  window.scrollTo({ top:0, behavior:"smooth" });
+}
+
+/* ---------------- HISTÓRICO ---------------- */
+async function renderHistory(){
+  const list = document.getElementById("historyList");
+  const reports = await getAllReports();
+  if(reports.length === 0){
+    list.innerHTML = `<div class="history-empty">Nenhum relatório salvo ainda.</div>`;
+    return;
+  }
+  list.innerHTML = "";
+  reports.forEach(r => {
+    const item = document.createElement("div");
+    item.className = "history-item";
+    item.innerHTML = `
+      <div class="history-item-info">
+        <strong>${getContract(r.contrato)?.label || "Contrato não informado"} · ${formatDateBR(r.data)} · Turma ${r.turma}</strong>
+        <small>${r.horario ? r.horario + " · " : ""}${r.encarregado}</small>
+      </div>
+      <div class="history-item-actions">
+        <button class="btn btn-primary btn-sm" data-action="reopen" data-id="${r.id}">Reabrir PDF</button>
+        <button class="btn btn-ghost btn-sm" data-action="delete" data-id="${r.id}">Excluir</button>
+      </div>
+    `;
+    list.appendChild(item);
+  });
+
+  list.querySelectorAll("[data-action='reopen']").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const id = Number(btn.dataset.id);
+      const reports = await getAllReports();
+      const record = reports.find(r => r.id === id);
+      if(!record) return;
+      const doc = buildPdf(record);
+      const blob = doc.output("blob");
+      lastGeneratedPdf = { blob, fileName: record.fileName, data: record };
+      downloadBlob(blob, record.fileName);
+    });
+  });
+
+  list.querySelectorAll("[data-action='delete']").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      const id = Number(btn.dataset.id);
+      await deleteReport(id);
+      renderHistory();
+      showToast("Relatório excluído.");
+    });
+  });
+}
+
+function setupHistoryPanel(){
+  document.getElementById("historyBtn").addEventListener("click", async () => {
+    document.getElementById("reportForm").classList.add("hidden");
+    document.getElementById("resultCard").classList.add("hidden");
+    document.getElementById("historyCard").classList.remove("hidden");
+    await renderHistory();
+  });
+  document.getElementById("closeHistoryBtn").addEventListener("click", () => {
+    document.getElementById("historyCard").classList.add("hidden");
+    document.getElementById("reportForm").classList.remove("hidden");
+  });
+  document.getElementById("exportJsonBtn").addEventListener("click", async () => {
+    const reports = await getAllReports();
+    if(reports.length === 0){ showToast("Nenhum relatório para exportar."); return; }
+    const blob = new Blob([JSON.stringify(reports, null, 2)], { type: "application/json" });
+    downloadBlob(blob, `relatorios_turno_export_${Date.now()}.json`);
+    showToast("JSON exportado (pronto para Power BI / Power Query).");
+  });
+}
+
+/* ---------------- INIT ---------------- */
+function setDefaultDate(){
+  const input = document.getElementById("dataField");
+  const today = new Date();
+  const iso = today.toISOString().slice(0,10);
+  input.value = iso;
+}
+
+function showInitError(err){
+  console.error("Erro ao iniciar o app:", err);
+  const container = document.getElementById("equipGroups");
+  if(container){
+    container.innerHTML = `
+      <div style="padding:16px; border:1.5px solid var(--red); background:var(--red-bg); border-radius:10px; font-size:13px;">
+        <strong>Não foi possível carregar a lista de equipamentos.</strong><br>
+        Detalhe técnico: ${(err && err.message) ? err.message : String(err)}<br><br>
+        Tente: fechar e abrir o app novamente, ou atualizar a página puxando-a para baixo.
+        Se persistir, remova o atalho da tela inicial e adicione novamente.
+      </div>`;
+  }
+}
+
+function init(){
+  try {
+    renderEquipmentGroups(null);
+    renderHorarioOptions(null);
+    setupContratoSelector();
+    renderTurmaOptions(null);
+    setupTheme();
+    setupForm();
+    setupHistoryPanel();
+    setDefaultDate();
+  } catch(err){
+    showInitError(err);
+  }
+
+  if("serviceWorker" in navigator){
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("service-worker.js").catch(err => {
+        console.warn("Falha ao registrar service worker:", err);
+      });
+    });
+  }
+}
+
+window.addEventListener("error", (event) => {
+  console.error("Erro não tratado:", event.error || event.message);
+});
+
+document.addEventListener("DOMContentLoaded", init);
+
+</script>
+</body>
+</html>
